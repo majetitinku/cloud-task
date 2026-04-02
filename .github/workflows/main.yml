@@ -1,0 +1,53 @@
+name: simple-ec2-deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+           cd /home/ec2-user
+
+            if [ ! -d "cloud-task" ]; then
+              git clone https://github.com/majetitinku/cloud-task.git
+            fi
+
+            cd cloud-task
+
+            git pull origin main
+
+            # install dependencies if missing
+            if ! command -v python3 &> /dev/null
+            then
+              sudo yum install -y python3
+            fi
+
+            if ! command -v git &> /dev/null
+            then
+              sudo yum install -y git
+            fi
+
+            # setup venv if not exists
+            if [ ! -d "venv" ]; then
+              python3 -m venv venv
+            fi
+
+            source venv/bin/activate
+
+            pip install -r requirements.txt
+
+            sudo systemctl restart task-manager

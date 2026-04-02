@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{% if task %}Edit Task{% else %}Add Task{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="mb-3">{% if task %}Edit Task{% else %}Add New Task{% endif %}</h3>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" name="title" class="form-control" required value="{{ task.title if task else '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="4">{{ task.description if task else '' }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="pending" {% if task and task.status == 'pending' %}selected{% endif %}>pending</option>
+                            <option value="in_progress" {% if task and task.status == 'in_progress' %}selected{% endif %}>in_progress</option>
+                            <option value="completed" {% if task and task.status == 'completed' %}selected{% endif %}>completed</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Attach File (optional)</label>
+                        <input type="file" name="task_file" class="form-control">
+                        <small class="text-muted">uploads to S3 directly, basic version for now</small>
+                    </div>
+                    <button type="submit" class="btn btn-success">Save Task</button>
+                    <a href="{{ url_for('tasks.task_list') }}" class="btn btn-secondary">Back</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

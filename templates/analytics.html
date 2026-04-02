@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Analytics{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Task Analytics</h2>
+<p class="text-muted">Very basic stats page. can add charts later.</p>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card p-3 border-success">
+            <h6>Completed</h6>
+            <h2 class="text-success">{{ completed }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 border-warning">
+            <h6>Pending</h6>
+            <h2 class="text-warning">{{ pending }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 border-info">
+            <h6>In Progress</h6>
+            <h2 class="text-info">{{ in_progress }}</h2>
+        </div>
+    </div>
+</div>
+{% endblock %}

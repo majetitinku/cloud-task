@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Task List{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Tasks</h2>
+    <a href="{{ url_for('tasks.add_task') }}" class="btn btn-primary">+ New Task</a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Owner</th>
+                        <th>Files</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                        <tr>
+                            <td>{{ task.title }}</td>
+                            <td>
+                                {% if task.status == 'completed' %}
+                                    <span class="badge bg-success">completed</span>
+                                {% elif task.status == 'in_progress' %}
+                                    <span class="badge bg-info">in_progress</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">pending</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ task.user.username }}</td>
+                            <td>
+                                {% if task.files %}
+                                    {% for f in task.files %}
+                                        <a href="{{ f.file_url }}" target="_blank" class="d-block">file {{ loop.index }}</a>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">none</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ task.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <a href="{{ url_for('tasks.edit_task', task_id=task.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <form action="{{ url_for('tasks.delete_task', task_id=task.id) }}" method="POST" class="d-inline">
+                                    <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this task?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center p-4">No tasks found</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

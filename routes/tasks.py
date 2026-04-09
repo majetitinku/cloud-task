@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from models import db, Task, File
 from utils.s3_upload import upload_file_to_s3
+from permissions_lib import task_scope_query, can_edit_task, can_delete_task
 
 
 tasks_bp = Blueprint("tasks", __name__)
@@ -12,11 +13,8 @@ tasks_bp = Blueprint("tasks", __name__)
 def task_list():
 
     # admin gets everything, others just their own stuff
-    if current_user.role == "admin":
-        tasks = Task.query.order_by(Task.created_at.desc()).all()
-    else:
-        tasks = Task.query.filter_by(user_id=current_user.id)\
-            .order_by(Task.created_at.desc()).all()
+    tasks = task_scope_query(current_user, Task)\
+        .order_by(Task.created_at.desc()).all()
 
     return render_template("tasks/task_list.html", tasks=tasks)
 
@@ -71,7 +69,7 @@ def edit_task(task_id):
     task = Task.query.get_or_404(task_id)
 
     # basic permission check
-    if current_user.role != "admin" and task.user_id != current_user.id:
+    if not can_edit_task(current_user, task):
         flash("Not allowed", "danger")
         return redirect(url_for("tasks.task_list"))
 
@@ -112,7 +110,7 @@ def delete_task(task_id):
     task = Task.query.get_or_404(task_id)
 
     # same permission logic as edit
-    if current_user.role != "admin" and task.user_id != current_user.id:
+    if not can_delete_task(current_user, task):
         flash("Not allowed", "danger")
         return redirect(url_for("tasks.task_list"))
 

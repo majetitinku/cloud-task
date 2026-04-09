@@ -2,6 +2,7 @@ from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 from sqlalchemy import func
 from models import db, Task
+from permissions_lib import is_admin, task_scope_query
 
 
 main_bp = Blueprint("main", __name__)
@@ -17,31 +18,14 @@ def home():
 def dashboard():
 
     # admin sees all data, normal users just theirs
-    if current_user.role == "admin":
-
-        total = Task.query.count()
-
-        completed = Task.query.filter_by(status="completed").count()
-
-        # anything not completed = pending (rough logic for now)
-        pending = Task.query.filter(Task.status != "completed").count()
-
-        recent = Task.query.order_by(Task.created_at.desc()).limit(5).all()
-
+    base_query = task_scope_query(current_user, Task)
+    total = base_query.count()
+    completed = base_query.filter_by(status="completed").count()
+    if is_admin(current_user):
+        pending = base_query.filter(Task.status != "completed").count()
     else:
-        total = Task.query.filter_by(user_id=current_user.id).count()
-
-        completed = Task.query.filter_by(
-            user_id=current_user.id, status="completed"
-        ).count()
-
-        pending = Task.query.filter_by(
-            user_id=current_user.id, status="pending"
-        ).count()
-
-        recent = Task.query.filter_by(user_id=current_user.id)\
-            .order_by(Task.created_at.desc())\
-            .limit(5).all()
+        pending = base_query.filter_by(status="pending").count()
+    recent = base_query.order_by(Task.created_at.desc()).limit(5).all()
 
     return render_template(
         "dashboard.html",
@@ -57,7 +41,7 @@ def dashboard():
 def analytics():
 
     # grouping tasks by status
-    if current_user.role == "admin":
+    if is_admin(current_user):
         data = db.session.query(Task.status, func.count(Task.id))\
             .group_by(Task.status).all()
     else:

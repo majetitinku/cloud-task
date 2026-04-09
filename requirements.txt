@@ -5,3 +5,4 @@ psycopg[binary]==3.2.9
 boto3==1.34.131
 python-dotenv==1.0.1
 gunicorn==22.0.0
+permissions-lib @ git+https://github.com/majetitinku/permissions-lib.git@main

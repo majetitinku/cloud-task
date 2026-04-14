@@ -6,7 +6,7 @@
     <div class="container-fluid py-3">
         <h1 class="display-6 fw-bold">Cloud Task Management System</h1>
         <p class="col-md-8 fs-5">
-            This project uses EC2 with Elastic Ip, RDS(postgres), S3, CloudWatch.
+            Project uses EC2 with Elastic Ip, RDS(postgres), S3, CloudWatch.
         </p>
         {% if not current_user.is_authenticated %}
             <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg me-2">Get Started</a>

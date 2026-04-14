@@ -28,7 +28,9 @@ jobs:
 
             cd cloud-task
 
-            git pull origin main
+            git fetch origin
+            git reset --hard origin/main
+            git clean -fd
 
             # install dependencies if missing
             if ! command -v python3 &> /dev/null
